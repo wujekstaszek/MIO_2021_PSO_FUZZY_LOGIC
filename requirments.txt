@@ -1,0 +1,3 @@
+pyswarm
+scikit-fuzzy
+pandas
