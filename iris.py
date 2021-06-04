@@ -113,13 +113,21 @@ if __name__ == '__main__':
 
     iris_class_ctrl_sim = ctrl.ControlSystemSimulation(iris_class_ctrl, flush_after_run=len(data))
 
+
+    import PSO as p
+
+
+    words = {'sepal length','sepal width','petal length','petal width'}
+    result_word = "iris class"
+    test2 = hmm(fis,words,result_word,3)
     for elem in test:
+            i=0
+            for word in words:
+                inputs[word]=elem[i]
+                i+=1
         # Pass inputs to the ControlSystem using Antecedent labels with Pythonic API
         # Note: if you like passing many inputs all at once, use .inputs(dict_of_data)
-        iris_class_ctrl_sim.input['sepal length'] = elem[0]
-        iris_class_ctrl_sim.input['sepal width'] = elem[1]
-        iris_class_ctrl_sim.input['petal length'] = elem[2]
-        iris_class_ctrl_sim.input['petal width'] = elem[3]
+        iris_class_ctrl_sim.inputs(inputs)
 
         # Crunch the numbers
         iris_class_ctrl_sim.compute()
