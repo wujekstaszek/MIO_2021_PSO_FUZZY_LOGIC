@@ -1,0 +1,55 @@
+min_sepal_l = min(learn, key=lambda elem: elem[0])[0]
+max_sepal_l = max(learn, key=lambda elem: elem[0])[0]
+min_sepal_w = min(learn, key=lambda elem: elem[1])[1]
+max_sepal_w = max(learn, key=lambda elem: elem[1])[1]
+min_petal_l = min(learn, key=lambda elem: elem[2])[2]
+max_petal_l = max(learn, key=lambda elem: elem[2])[2]
+min_petal_w = min(learn, key=lambda elem: elem[3])[3]
+max_petal_w = max(learn, key=lambda elem: elem[3])[3]
+
+
+
+
+sl=0
+sw=0
+pl=0
+pw=0
+l1 = 101
+l2 = 150
+print(min(data[l1:l2], key=lambda elem: elem[0])[0])
+print(max(data[l1:l2], key=lambda elem: elem[0])[0])
+print(min(data[l1:l2], key=lambda elem: elem[1])[1])
+print(max(data[l1:l2], key=lambda elem: elem[1])[1])
+print(min(data[l1:l2], key=lambda elem: elem[2])[2])
+print(max(data[l1:l2], key=lambda elem: elem[2])[2])
+print(min(data[l1:l2], key=lambda elem: elem[3])[3])
+print(max(data[l1:l2], key=lambda elem: elem[3])[3])
+sl/=50
+sw/=50
+pl/=50
+pw/=50
+
+sepal_l.view()
+sepal_w.view()
+petal_l.view()
+petal_w.view()
+iris_class.view()
+
+
+
+
+rule1 = ctrl.Rule((antecedents[0][rule_values[0]] | antecedents[0][rule_values[1]] | antecedents[0][rule_values[2]] | antecedents[0][rule_values[3]]) & 
+                    # (antecedents[1][rule_values[2]] | antecedents[1][rule_values[3]] | antecedents[1][rule_values[4]]) & 
+                    (antecedents[2][rule_values[0]] | antecedents[2][rule_values[1]]) &
+                    (antecedents[3][rule_values[0]] | antecedents[3][rule_values[1]] | antecedents[3][rule_values[2]]), 
+                    consequent['1'])
+rule2 = ctrl.Rule( ~antecedents[0][rule_values[6]] & 
+                    ~(antecedents[1][rule_values[5]] | antecedents[1][rule_values[6]]) & 
+                    (antecedents[2][rule_values[2]] | antecedents[2][rule_values[3]] | antecedents[2][rule_values[4]] | antecedents[2][rule_values[5]]) &
+                    (antecedents[3][rule_values[2]] | antecedents[3][rule_values[3]] | antecedents[3][rule_values[4]] | antecedents[3][rule_values[5]]), 
+                    consequent['2'])
+rule3 = ctrl.Rule(#~antecedents[0][rule_values[0]] & 
+                    ~antecedents[1][rule_values[6]] & 
+                    (antecedents[2][rule_values[3]] | antecedents[2][rule_values[4]] | antecedents[2][rule_values[5]] | antecedents[2][rule_values[6]]) &
+                    (antecedents[3][rule_values[3]] | antecedents[3][rule_values[4]] | antecedents[3][rule_values[5]] | antecedents[3][rule_values[6]]), 
+                    consequent['3'])
