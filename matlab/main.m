@@ -10,11 +10,13 @@ iris_size = size(iris);
 iris=iris(randperm(size(iris, 1)), :);
 global fis
 global test
+global iter
+iter = 0 ;
 lb=zeros(243);
 ub=ones(243);
 
 input_names = {'sepal length'; 'sepal width'; 'petal length'; 'petal width'};
-output_name = 'iris class'
+output_name = 'iris class';
 
 test=iris(1:15,:);
 fis = mamfis("NumInputs",4,"NumOutputs",1);
@@ -35,7 +37,7 @@ ruleList = get_rule_list(4, 3);
 fis.Rules = [];
 fis = addRule(fis, ruleList);
 
-numOfParametersPSO = 243+27;
+numOfParametersPSO = 243+36;
 fun=@(x)updateVariables(x);
 particleswarm(fun,numOfParametersPSO,lb,ub)
 
@@ -43,17 +45,19 @@ particleswarm(fun,numOfParametersPSO,lb,ub)
 function procentage_result = updateVariables(vars)
     global fis
     global test
-    max = 243;
-    for i = 1:max
+    global iter
+    iter= iter+1
+    max1 = 243;
+    for i = 1:max1
         fis.rules(i).weight = vars(i);
     end
-    for i =1:4
-        temp1 = [vars(max+i*3+1),vars(max+i*3+2),vars(max+i*3+3)];
-        temp2 = [vars(max+i*3+4),vars(max+i*3+5),vars(max+i*3+6)];
-        temp3 = [vars(max+i*3+7),vars(max+i*3+8),vars(max+i*3+9)];
-        fis.inputs(i).membershipfunctions(1).parameters = [min(temp1),median(temp1),max(temp1)];
-        fis.inputs(i).membershipfunctions(2).parameters = [min(temp2),median(temp2),max(temp2)];
-        fis.inputs(i).membershipfunctions(3).parameters = [min(temp3),median(temp3),max(temp3)];
+    for i =0:3
+        temp1 = [vars(max1+i*9+1),vars(max1+i*9+2),vars(max1+i*9+3)];
+        temp2 = [vars(max1+i*9+4),vars(max1+i*9+5),vars(max1+i*9+6)];
+        temp3 = [vars(max1+i*9+7),vars(max1+i*9+8),vars(max1+i*9+9)];
+        fis.inputs(i+1).membershipfunctions(1).parameters = [min(temp1),median(temp1),max(temp1)];
+        fis.inputs(i+1).membershipfunctions(2).parameters = [min(temp2),median(temp2),max(temp2)];
+        fis.inputs(i+1).membershipfunctions(3).parameters = [min(temp3),median(temp3),max(temp3)];
     end
     global results
     results = evalfis(fis,test(:,1:4));
@@ -65,7 +69,7 @@ end
 
 function m = get_rule_list(number_of_inputs, number_of_rules_values)
     num_of_combinations = number_of_rules_values^(number_of_inputs+1);
-    m = zeros(num_of_combinations,number_of_inputs+3,'uint32'); % 1 for output, 1 for weight, 1 for and/or
+    m = zeros(num_of_combinations,number_of_inputs+3,'double'); % 1 for output, 1 for weight, 1 for and/or
 
     for i = 0:num_of_combinations-1
         num = dec2base(i,number_of_rules_values);
