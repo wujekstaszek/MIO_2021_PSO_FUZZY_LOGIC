@@ -32,6 +32,7 @@ fis.outputs(1).membershipfunctions(2).name = "Class 2";
 fis.outputs(1).membershipfunctions(3).name = "Class 3";
 fis.outputs(1).name = output_name;
 %DO OGARNIĘCIA RULSY
+global ruleList
 ruleList = get_rule_list(4, 3);
 
 fis.Rules = [];
@@ -46,11 +47,12 @@ function procentage_result = updateVariables(vars)
     global fis
     global test
     global iter
+    global ruleList
     iter= iter+1
     max1 = 243;
-    for i = 1:max1
-        fis.rules(i).weight = vars(i);
-    end
+    ruleList(:,6) = vars(1:243);
+    fis.Rules = [];
+    fis = addRule(fis,ruleList);
     for i =0:3
         temp1 = [vars(max1+i*9+1),vars(max1+i*9+2),vars(max1+i*9+3)];
         temp2 = [vars(max1+i*9+4),vars(max1+i*9+5),vars(max1+i*9+6)];
@@ -64,7 +66,7 @@ function procentage_result = updateVariables(vars)
     results = results == test(:,5);
     
     
-    procentage_result = 1-mean(results);
+    procentage_result = mean(results);
 end
 
 function m = get_rule_list(number_of_inputs, number_of_rules_values)
