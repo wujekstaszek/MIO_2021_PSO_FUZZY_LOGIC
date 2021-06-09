@@ -19,6 +19,10 @@ input_names = {'sepal length'; 'sepal width'; 'petal length'; 'petal width'};
 output_name = 'iris class';
 
 test=iris(1:15,:);
+
+mins = min(test)
+maxs = max(test)
+
 fis = mamfis("NumInputs",4,"NumOutputs",1);
 fis.name = "Iris classification problem fuzzy system"; 
 for i = 1:4
@@ -26,6 +30,8 @@ for i = 1:4
     fis.inputs(i).membershipfunctions(2).name = "Medium";
     fis.inputs(i).membershipfunctions(3).name = "Good";
     fis.inputs(i).name = input_names{i};
+    fis.inputs(i).range = [mins(i), maxs(i)];
+    
 end
 fis.outputs(1).membershipfunctions(1).name = "Class 1";
 fis.outputs(1).membershipfunctions(2).name = "Class 2";
@@ -40,7 +46,8 @@ fis = addRule(fis, ruleList);
 
 numOfParametersPSO = 243+36;
 fun=@(x)updateVariables(x);
-particleswarm(fun,numOfParametersPSO,lb,ub)
+options = optimoptions('particleswarm','MaxIterations',2);
+particleswarm(fun,numOfParametersPSO,lb,ub,options)
 
 %%
 function procentage_result = updateVariables(vars)
@@ -48,12 +55,12 @@ function procentage_result = updateVariables(vars)
     global test
     global iter
     global ruleList
-    iter= iter+1
+    iter = iter+1
     max1 = 243;
     ruleList(:,6) = vars(1:243);
     fis.Rules = [];
     fis = addRule(fis,ruleList);
-    for i =0:3
+    for i = 0:3
         temp1 = [vars(max1+i*9+1),vars(max1+i*9+2),vars(max1+i*9+3)];
         temp2 = [vars(max1+i*9+4),vars(max1+i*9+5),vars(max1+i*9+6)];
         temp3 = [vars(max1+i*9+7),vars(max1+i*9+8),vars(max1+i*9+9)];
@@ -62,7 +69,7 @@ function procentage_result = updateVariables(vars)
         fis.inputs(i+1).membershipfunctions(3).parameters = [min(temp3),median(temp3),max(temp3)];
     end
     global results
-    results = evalfis(fis,test(:,1:4));
+    results = evalfis(fis,test(:,1:4))
     results = results == test(:,5);
     
     
