@@ -1,4 +1,6 @@
+warning off;
 clear; clc;
+close all;
 
 %Wczytujemy dane
 %Tworzymy fuzzy logic system
@@ -10,7 +12,7 @@ iris_size = size(iris);
 iris=iris(randperm(size(iris, 1)), :);
 global fis
 global test
-global iter
+global learn
 iter = 0 ;
 lb=zeros(243);
 ub=ones(243);
@@ -19,9 +21,12 @@ input_names = {'sepal length'; 'sepal width'; 'petal length'; 'petal width'};
 output_name = 'iris class';
 
 test=iris(1:15,:);
+learn=iris(16:end,:)
 
-mins = min(test)
-maxs = max(test)
+mins = min(learn(:,1:4))
+maxs = max(learn(:,1:4))
+
+learn = [(learn(:,1:4)-mins)./(maxs-mins),learn(:,5)]
 
 fis = mamfis("NumInputs",4,"NumOutputs",1);
 fis.name = "Iris classification problem fuzzy system"; 
@@ -30,12 +35,15 @@ for i = 1:4
     fis.inputs(i).membershipfunctions(2).name = "Medium";
     fis.inputs(i).membershipfunctions(3).name = "Good";
     fis.inputs(i).name = input_names{i};
-    fis.inputs(i).range = [mins(i), maxs(i)];
+%     fis.inputs(i).range = [mins(i), maxs(i)];
     
 end
 fis.outputs(1).membershipfunctions(1).name = "Class 1";
+fis.outputs(1).mf(1).params = [-0.5 0 0.5];
 fis.outputs(1).membershipfunctions(2).name = "Class 2";
+fis.outputs(1).mf(2).params = [0.25 0.5 0.75];
 fis.outputs(1).membershipfunctions(3).name = "Class 3";
+fis.outputs(1).mf(3).params = [0.5 1 1.5];
 fis.outputs(1).name = output_name;
 %DO OGARNIĘCIA RULSY
 global ruleList
@@ -46,16 +54,14 @@ fis = addRule(fis, ruleList);
 
 numOfParametersPSO = 243+36;
 fun=@(x)updateVariables(x);
-options = optimoptions('particleswarm','MaxIterations',2);
+options = optimoptions('particleswarm','MaxIterations',500,'SwarmSize',30,'Display','iter','MaxStallIterations', 100, 'ObjectiveLimit', 0);
 particleswarm(fun,numOfParametersPSO,lb,ub,options)
 
 %%
 function procentage_result = updateVariables(vars)
     global fis
-    global test
-    global iter
+    global learn
     global ruleList
-    iter = iter+1
     max1 = 243;
     ruleList(:,6) = vars(1:243);
     fis.Rules = [];
@@ -69,11 +75,11 @@ function procentage_result = updateVariables(vars)
         fis.inputs(i+1).membershipfunctions(3).parameters = [min(temp3),median(temp3),max(temp3)];
     end
     global results
-    results = evalfis(fis,test(:,1:4))
-    results = results == test(:,5);
+    results = floor(evalfis(fis,learn(:,1:4))*3+1);
+    results = results == learn(:,5);
     
     
-    procentage_result = mean(results);
+    procentage_result = 1 - mean(results)
 end
 
 function m = get_rule_list(number_of_inputs, number_of_rules_values)
@@ -92,7 +98,7 @@ function m = get_rule_list(number_of_inputs, number_of_rules_values)
            num = strcat(zerros,num);
         end
         
-        num = strcat(num,'01');
+        num = strcat(num,'00');
         
         for j = 1:(number_of_inputs+3)
             m(i+1,j) = str2double(num(j)) + 1;
