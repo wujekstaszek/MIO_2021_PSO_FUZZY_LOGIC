@@ -21,12 +21,12 @@ input_names = {'sepal length'; 'sepal width'; 'petal length'; 'petal width'};
 output_name = 'iris class';
 
 test=iris(1:15,:);
-learn=iris(16:end,:)
+learn=iris(16:end,:);
 
-mins = min(learn(:,1:4))
-maxs = max(learn(:,1:4))
+mins = min(learn(:,1:4));
+maxs = max(learn(:,1:4));
 
-learn = [(learn(:,1:4)-mins)./(maxs-mins),learn(:,5)]
+learn = [(learn(:,1:4)-mins)./(maxs-mins),learn(:,5)];
 
 fis = mamfis("NumInputs",4,"NumOutputs",1);
 fis.name = "Iris classification problem fuzzy system"; 
@@ -54,9 +54,9 @@ fis = addRule(fis, ruleList);
 
 numOfParametersPSO = 243+36;
 fun=@(x)updateVariables(x);
-options = optimoptions('particleswarm','MaxIterations',500,'SwarmSize',30,'Display','iter','MaxStallIterations', 100, 'ObjectiveLimit', 0);
-particleswarm(fun,numOfParametersPSO,lb,ub,options)
-
+options = optimoptions('particleswarm','MaxIterations',500,'SwarmSize',100,'Display','iter','MaxStallIterations', 20, 'ObjectiveLimit', 0,"SelfAdjustmentWeight",4,"SocialAdjustmentWeight",4);
+iris_result = particleswarm(fun,numOfParametersPSO,lb,ub,options);
+save("results","iris_result");
 %%
 function procentage_result = updateVariables(vars)
     global fis
@@ -79,7 +79,7 @@ function procentage_result = updateVariables(vars)
     results = results == learn(:,5);
     
     
-    procentage_result = 1 - mean(results)
+    procentage_result = 1 - mean(results);
 end
 
 function m = get_rule_list(number_of_inputs, number_of_rules_values)
