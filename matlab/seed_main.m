@@ -43,7 +43,7 @@ learn=data(test_size+1:end,:);
 mf_input_names = {'Bad','Medium','Good'};
 mf_output_names = {'Class 1','Class 2','Class 3'};
 
-fis = mamfis("NumInputs",4,"NumOutputs",1);
+fis = mamfis("NumInputs",inputs,"NumOutputs",1);
 fis.name = "Iris classification problem fuzzy system"; 
 for i = 1:inputs
     for j = 1:mf_inp
