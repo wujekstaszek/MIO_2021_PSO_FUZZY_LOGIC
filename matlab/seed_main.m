@@ -65,19 +65,19 @@ fis.Rules = [];
 fis = addRule(fis, ruleList);
 
 fun=@(x)updateVariables(x);
-options = optimoptions('particleswarm','MaxIterations',500,'SwarmSize',25,'Display','iter','MaxStallIterations', 20, 'ObjectiveLimit', 0,"SelfAdjustmentWeight",4,"SocialAdjustmentWeight",4);
+options = optimoptions('particleswarm','MaxIterations',500,'SwarmSize',250,'Display','iter','MaxStallIterations', 20, 'ObjectiveLimit', 0,"SelfAdjustmentWeight",4,"SocialAdjustmentWeight",4);
 data_result = particleswarm(fun,total_dim,lb,ub,options);
-test_function(data_result,test)
+test_function(data_result);
 save("seedsc4c4","data_result");
 
 %%
 
-function result = test_function(vars,test)
+function result = test_function(vars)
     global fis
     global test
     updateVariables(vars)
-    result = floor(evalfis(fis,test(:,1:4))*3+1);
-    result = result == test(:,5);
+    result = floor(evalfis(fis,test(:,1:7))*3+1);
+    result = result == test(:,8);
 end
 function procentage_result = updateVariables(vars)
     global fis
