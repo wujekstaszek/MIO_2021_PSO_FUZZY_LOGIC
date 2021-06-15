@@ -1,4 +1,0 @@
-pyswarms
-scikit-fuzzy
-pandas
-numpy

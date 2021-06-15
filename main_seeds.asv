@@ -1,19 +1,75 @@
-warning off;
-clear; clc;
-close all;
+warning off; clear; clc; close all;
 
-%Wczytujemy dane
-%Tworzymy fuzzy logic system
-%Tworzymy zasady
-%Puszczamy optymalizację za pomocą PSO(optymalizacja wag zasad i parametrów funkcji wejściowej)
-global rules
-global mf_inp
-global inputs
-global fis
+%% AUTORZY
+% Piotr Matiaszewski, Aleksander Morgała, Jakub Perlak
+
+%% DATA PREPERATION
+% LOAD SHUFFLED SET 
+load dataset_seeds.txt;                                         % load set
+data = dataset_seeds(randperm(size(dataset_seeds, 1)),:);       % shuffle set using permutation
+
+% GET PROBLEM'S SIZES AND DIMENSIONS
+data_sizes = size(data);
+
+global inputs_num
+inputs_num = size(data,2)-1;        % number of input variables
+outputs_num = size(data,2)-inputs_num;
+
+mf_input_values = 3;                % number of values in input functions
+global mf_output_classes_num
+mf_output_classes_num = 3;          % number of classes in output functions
+
+global rules_num
+rules_num = mf_input_values^inputs_num * mf_output_classes_num;
+params_num = mf_input_values * inputs_num * 3;
+total_dim = rules_num + params_num;
+
+% NORMALIZE DATA
+
+mins = min(data(:,1:inputs_num));
+maxs = max(data(:,1:inputs_num));
+data = [(data(:,1:inputs_num)-mins)./(maxs-mins),data(:,inputs_num+1)];
+
+% GET TEST AND LEARN SETS
 global test
+test_size = data_sizes(1) * 0.1;     % size of test set
+test = data(1:test_size,:);
+
 global learn
-load seeds_dataset.txt
-data = seeds_dataset;
+learn = data(test_size+1:end,:);
+
+% FUZZY LOGIC DEFINITION
+global fis
+fis = mamfis("NumInputs",inputs_num,"NumOutputs",outputs_num);
+fis.name = "Seeds classification problem fuzzy system";                          % FIS name
+
+% FL INPUTS
+input_names = {'area'; 'perimiter'; 'compactness'; 'length of kernel'; 'width of kernel';...    % input variables' names
+               'assymetry coefficient'; 'length of kernel groove'};   
+mf_input_names = {'Bad','Medium','Good'};                                       % names of input variables' membership functions
+
+for i = 1:inputs_num
+    for j = 1:mf_input_values
+        fis.inputs(i).membershipfunctions(j).name = mf_input_names{j};
+    end
+    fis.inputs(i).name = input_names{i};
+end
+
+% FL OUTPUTS
+output_names = ['Iris class'];                                                  % outputs' names
+mf_output_names = {'Class 1','Class 2','Class 3'};                              % names of output variables' membership functions
+output_params = [-0.5 0 0.5; 0.25 0.5 0.75; 0.5 1 1.5];                         % parameters of output variables' membership functions
+
+for i = 1:outputs_num
+    for j = 1:mf_output_classes_num
+        fis.outputs(i).membershipfunctions(j).name = mf_output_names{j};
+        fis.outputs(i).membershipfunctions(j).params = output_params(j,:);
+    end
+    fis.outputs(i).name = output_names(i);
+end
+
+load dataset_seeds.txt
+data = dataset_seeds;
 data_size = size(data);
 data=data(randperm(size(data, 1)), :);
 inputs=size(data,2)-1;

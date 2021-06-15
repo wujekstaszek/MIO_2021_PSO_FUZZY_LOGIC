@@ -1,14 +1,14 @@
-warning off;
-clear; clc;
-close all;
+warning off; clear; clc; close all;
 
-%Wczytujemy dane
-%Tworzymy fuzzy logic system
-%Tworzymy zasady
-%Puszczamy optymalizację za pomocą PSO(optymalizacja wag zasad i parametrów funkcji wejściowej)
+%% AUTORZY
+% Piotr Matiaszewski, Aleksander Morgała, Jakub Perlak
 
-load haberman_survival_dataset.txt
-data = haberman_survival_dataset;
+%% DATA PREPERATION
+% LOAD SHUFFLED SET 
+load dataset_haberman_survival.TXT;                                                     % load set
+data = dataset_haberman_survival(randperm(size(dataset_haberman_survival, 1)),:);       % shuffle set using permutation
+
+data = dataset_haberman_survival;
 data_size = size(data);
 data=data(randperm(size(data, 1)), :);
 inputs=size(data,2)-1;
@@ -56,19 +56,22 @@ fis.outputs(1).mf(j).params = output_params(j,:);
 end
 fis.outputs(1).name = output_name;
 fis = removeMF(fis,output_name,'mf3','VariableType',"output");
-%DO OGARNIĘCIA RULSY
+
+% REGUŁY
 global ruleList
 ruleList = get_rule_list(inputs, mf_inp, mf_out);
-
 fis.Rules = [];
 fis = addRule(fis, ruleList);
 
+% PSO
 fun=@(x)updateVariables(x);
-options = optimoptions('particleswarm','MaxIterations',500,'SwarmSize',200,'Display','iter','MaxStallIterations', 50, 'ObjectiveLimit', 0,"SelfAdjustmentWeight",2,"SocialAdjustmentWeight",2);
+options = optimoptions('particleswarm','MaxIterations',500,'SwarmSize',200,'Display','iter','MaxStallIterations', 50, 'ObjectiveLimit', 0,"SelfAdjustmentWeight",3,"SocialAdjustmentWeight",3);
 data_result = particleswarm(fun,total_dim,lb,ub,options);
-test_function(data_result);
-%%
 
+% TESTOWANIE
+test_function(data_result);
+
+%% 
 function result = test_function(vars)
     global fis
     global test
@@ -76,6 +79,8 @@ function result = test_function(vars)
     result = floor(evalfis(fis,test(:,1:3))*(4/3)+1);
     result = result == test(:,4);
 end
+
+%% 
 function procentage_result = updateVariables(vars)
     global fis
     global learn
@@ -96,10 +101,10 @@ function procentage_result = updateVariables(vars)
     results = floor(evalfis(fis,learn(:,1:3))*(4/3)+1);
     results = results ~= learn(:,4);
     
-    
     procentage_result = mean(results);
 end
 
+%% 
 function m = get_rule_list(number_of_inputs, number_of_rules_values, num_of_output_classes)
     num_of_combinations = number_of_rules_values^number_of_inputs;
     m = zeros(num_of_combinations*num_of_output_classes,number_of_inputs+3,'double'); % 1 for output, 1 for weight, 1 for and/or
@@ -124,10 +129,8 @@ function m = get_rule_list(number_of_inputs, number_of_rules_values, num_of_outp
             num2 = strcat(num2,'00');
             
             for k = 1:(number_of_inputs+3)
-                m(1+2*i+class_ind,k) = str2double(num2(k)) + 1;
+                m(1+num_of_output_classes*i+class_ind,k) = str2double(num2(k)) + 1;
             end
         end
     end
 end
-
-
